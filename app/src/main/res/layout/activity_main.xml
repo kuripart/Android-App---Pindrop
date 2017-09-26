@@ -10,18 +10,49 @@
     tools:context="com.kuri.pindrop.MainActivity">
 
     <FrameLayout
+        android:id="@+id/graphicsIt"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/graphicsIt">
+        android:background="@android:color/holo_blue_dark">
 
         <Button
-            style="?android:attr/buttonStyleSmall"
+            android:id="@+id/attack"
+            style="@android:style/Widget.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ATTACK"
-            android:id="@+id/attack"
             android:layout_gravity="right|top"
+            android:clickable="true"
             android:onClick="attackIt"
-            android:clickable="true" />
+            android:text="ATTACK" />
+
+        <CheckBox
+            android:id="@+id/changeSpeedControl"
+            android:layout_width="114dp"
+            android:layout_height="61dp"
+            android:text="Check to move FAST"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button" />
+
+
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/scoreText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="124dp"
+        android:fontFamily="sans-serif-smallcaps"
+        android:text=""
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/exitButton"
+        style="@android:style/Widget.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="EXIT"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/scoreText" />
 </RelativeLayout>

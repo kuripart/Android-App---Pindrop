@@ -1,6 +1,7 @@
 package com.kuri.pindrop;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,7 +13,11 @@ import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
+import android.widget.TextView;
+
 
 public class MainActivity extends AppCompatActivity implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener{
 
@@ -21,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     Bitmap ball;
     Bitmap noBall;
     Boolean pinFall = false; //to decide when pin will attack
+    Boolean hitMade = false; //flag to indicate when pin hits the ball
     float pinHeight;
     float pinWidth;
     float yBall; //y position of Ball
@@ -29,14 +35,24 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     float yBallNo; // y -> Punctured
     float pinX; // pin's x
     float pinY; // pin's y
+    float increaseSpeed;
+    float decreaseSpeed;
     float incrementXBall; //decides how fast ball moves along x axis
     float factorSpeed; //decides pin's speed
+    float attackSpeed;
     int screenHeight;
     int screenWidth;
     int ballHeight;
     int ballWidth;
+    int gameScore;
+    int highScore;
     Paint ballPaint, puncturePaint;
+    int controlIncrementFactor;
+    int controlIncrementFactor2;
     GestureDetector gestures;
+    CheckBox changeSpeedControl;
+    TextView scoreText;
+    Button exitButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
         screenWidth = displaymetrics.widthPixels;
         gestures = new GestureDetector(this);
         frameLayout = (FrameLayout)findViewById(R.id.graphicsIt);
+        changeSpeedControl = (CheckBox) findViewById(R.id.changeSpeedControl);
+        exitButton = (Button) findViewById(R.id.exitButton);
         Pin pin = new Pin(this);
         frameLayout.addView(pin);
         ballPaint = new Paint();
@@ -61,8 +79,39 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
         incrementXBall = 50; //speed changes by 50
         pinY = 0; //pin y start
         pinX = 0; //pin x start
+        highScore = 0;
+        increaseSpeed = 90;
+        decreaseSpeed = -50;
         factorSpeed = 0; //no speed to pin initially
+        gameScore = 0;
+        controlIncrementFactor = 0;
+        controlIncrementFactor2 = 0;
+        attackSpeed = 100;
+        scoreText = (TextView) findViewById(R.id.scoreText);
         runIt();
+
+        changeSpeedControl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(changeSpeedControl.isChecked()){
+                    attackSpeed += increaseSpeed;
+                }else{
+                    attackSpeed = 100;
+                }
+            }
+        });
+
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                xBall = 0;
+                incrementXBall = 0; //speed of ball reset
+                gameScore = 0;
+                Intent goToFinalPage = new Intent(MainActivity.this, FinalActivity.class);
+                goToFinalPage.putExtra("HIGH_SCORE", Integer.toString(highScore));
+                startActivity(goToFinalPage);
+            }
+        });
     }
 
     public class Pin extends View{
@@ -87,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     }
 
     public void movePinX(MotionEvent event){
-        if(factorSpeed == 0) { //intially can scroll to set pin's x position
+        if(factorSpeed == 0) { //initially can scroll to set pin's x position
             pinX = event.getX();
         }else{ //after pin starts moving, no scrolling
             pinX = pinX + 0;
@@ -99,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     }
 
     public void resetBall(){
+        hitMade = false;
         xBall = 0;
         incrementXBall = 100; //speed increased by 100
         puncturePaint.setAlpha(0); //puncture gone
@@ -116,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
                 }
                 //pin falls
                 if(pinFall){ //when button ATTACK clicked
-                    factorSpeed += 100;
+                    factorSpeed += attackSpeed;
                 }
                 if(factorSpeed >= screenHeight - pinHeight){ //reached end of screen
                     factorSpeed = 0;
@@ -126,10 +176,40 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
                 if(pinX+pinWidth <= ballWidth+xBall && pinX >= xBall){
                     if(factorSpeed >= 600){
                         incrementXBall = 0;
+                        controlIncrementFactor++;
+                        if(!(controlIncrementFactor > 1)){
+                            gameScore++;
+                            if(highScore<gameScore)
+                                highScore = gameScore;
+                            scoreText.setText("Score: " + gameScore);
+                            hitMade = true;
+                        }
                         xBallNo = xBall; //puncture where needle falls at ball
                         ballPaint.setAlpha(0);
                         puncturePaint.setAlpha(255);
                     }
+                }
+
+
+                if(factorSpeed > 650 && !hitMade){
+                    controlIncrementFactor2++;
+                        if(!(controlIncrementFactor2 > 1)) {
+                            gameScore--;
+                            scoreText.setText("Score: " + gameScore);
+                        }
+                }
+
+                if(factorSpeed == 0){
+                    controlIncrementFactor2 = 0;
+                }
+
+                if(gameScore == -3){
+                    xBall = 0;
+                    incrementXBall = 0; //speed of ball reset
+                    gameScore = 0;
+                    Intent goToFinalPage = new Intent(MainActivity.this, FinalActivity.class);
+                    goToFinalPage.putExtra("HIGH_SCORE", Integer.toString(highScore));
+                    startActivity(goToFinalPage);
                 }
 
                 handler.postDelayed(this,900);
@@ -196,6 +276,8 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
 
     //BUTTON ATTACK!!
     public void attackIt(View view){
+        controlIncrementFactor = 0;
+        controlIncrementFactor2 = 0;
         movePinY();
     }
 }
