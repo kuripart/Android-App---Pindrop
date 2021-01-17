@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Android-App---Pindrop.iml" filepath="$PROJECT_DIR$/.idea/modules/Android-App---Pindrop.iml" group="Android-App---Pindrop" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Android-App---Pindrop-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Android-App---Pindrop-app.iml" group="Android-App---Pindrop/app" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/pindrop.iml" filepath="$PROJECT_DIR$/pindrop.iml" />
     </modules>
